@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Hot Reloading Everywhere • Christophe Porteneuve @ Confoo Montréal 2018</title>
+
+		<meta name="description" content="Stop wasting untold hours a week waiting for rebuilds, manually switching windows and reloading pages.  We can hot-reload most of our stuff, in most of our web / Node projects now.">
+		<meta name="author" content="Christophe Porteneuve">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link href='css/fonts.css' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/animate.min.css">
+		<link rel="stylesheet" href="css/theme/sky.css" id="theme-basis">
+		<link rel="stylesheet" href="css/theme/pw15.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/prism.css">
+
+    <base target="_blank"/>
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+    if (window.location.search.match(/print-pdf/gi)) {
+      var link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.type = 'text/css'
+      link.href = 'css/print/pdf.css'
+      document.getElementsByTagName('head')[0].appendChild(link)
+    }
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-43650325-23"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-43650325-24');
+    </script>
+	</head>
+
+	<body id="prioFix">
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section id="mainTitle">
+					<h1>
+            Hot Reloading Everywhere
+          </h1>
+					<p>
+						<small>A presentation by <a href="http://tddsworld.com/">Christophe Porteneuve</a> at <a href="https://confoo.ca/en">Confoo Montréal 2018</a></small>
+					</p>
+				</section>
+
+				<section id="whoami">
+					<h2>whoami</h2>
+
+					<pre><code data-trim class="language-js">
+const christophe = {
+  family: { wife: 'Élodie', son: 'Maxence', [Symbol.unknown]: '*Secret*' },
+  city: 'Paris, FR',
+  company: 'Delicious Insights',
+  trainings: ['Web Apps Modernes', 'Node.js', 'Git Total', 'ES Total', 'Webpack'],
+  firstTimeInMontreal: true,
+  lastTimeInMontreal: Symbol.noWay,
+  webSince: 1995,
+  claimsToFame: [
+    'Prototype.js',
+    'Ruby On Rails',
+    'Prototype and Script.aculo.us',
+    'Paris Web',
+    'NodeSchool Paris',
+  ],
+}
+          </code></pre>
+				</section>
+
+        <section>
+          <section id="what-is-hr">
+            <h1>What IS Hot Reloading</h1>
+            <h3>exactly?</h3>
+          </section>
+
+          <section id="hr-goals">
+            <h2>What are we trying to achieve?</h2>
+
+            <p>We want to <strong>avoid having to reload the full runtime</strong><br/>(web page, Node server, Electron host…) unless absolutely necessary.</p>
+            <p class="fragment">We want to <strong>see the impact of our code changes instantly</strong>, the moment we save.</p>
+            <p class="fragment">We want a <strong>fast workflow</strong> with <strong>instant feedback</strong>.</p>
+            <p class="fragment">In a perfect world, <a href="https://youtu.be/PUv66718DII?t=12m22s">we’d have this</a>.</p>
+          </section>
+
+          <section id="defn-hot-swapping">
+            <h2>Hot Swapping</h2>
+
+            <p>A well-known dev principle that means you can hot-replace running code in a runtime.</p>
+            <p>Possible in <a href="https://en.wikipedia.org/wiki/Hot_swapping#Software">a number of runtimes</a> over the years, sometimes inherent to a language<br/>
+              (Lisp, Erlang, Smalltalk, Elm, Elixir… VB6 *cough*).
+            </p>
+            <p>VS has <em>Edit and Continue</em> for C# and VB.NET, too.</p>
+            <br>
+            <p class="fragment">For <strong>CSS and images</strong>, browsers have been doing it forever, it’s a simple DOM update.</p>
+            <p class="fragment">For <strong>JavaScript</strong>, this is currently exclusive to v8 (Chrome·ium, Safari, Node, Electron…)</p>
+          </section>
+
+          <section id="defn-hmr">
+            <h2>Hot (Module) Reloading</h2>
+
+            <p>For CSS and images, same thing as hot swapping.</p>
+
+            <p>For JS, entirely different: we <strong>re-run the script</strong> in the current host context<br/>(running web page, Electron host…).  Not very useful in Node.</p>
+
+            <p>This comes with a number of gotchas we’ll highlight later.</p>
+          </section>
+          </section>
+
+        <section>
+          <section id="hot-swapping">
+            <h1>Hot Swapping</h1>
+            <h3>You rev that v8!</h3>
+          </section>
+
+          <section id="hot-swap-node">
+            <h2>Hot swapping Node</h2>
+
+            <p>Usually makes more sense than HMR.</p>
+            <p>Unfortunately not supported by all IDEs / editors:</p>
+            <p><strong>Chrome DevTools is great</strong></p>
+            <p><strong>WebStorm</strong> 2017+ is doing <strong>alright</strong> (well, sort of)</p>
+            <p>VS Code / VS don’t hot-swap Node 😢</p>
+          </section>
+
+          <section id="hot-swap-node-chrome">
+            <h2>Hot swapping Node</h2>
+            <h3>using off-the-shelf Chrome</h3>
+
+            <ol>
+              <li>Open Chrome and open its Dev Tools (<kbd>F12</kbd> / <kbd>Cmd+Alt+J</kbd>)</li>
+              <li>Start your Node using <code>--inspect</code> (or <code>kill -USR1</code> its process).</li>
+              <li>
+                You should see a Node icon pop up next to the Select / Device top-left icons: click it<br/>
+                (not seeing it? this is a temporary bug: browse <code>chrome://inspect</code> instead)
+              </li>
+              <li>Go to the Sources tab, edit any file, “save” it: it’s hot-swapped 🎉</li>
+              <li>(optional) You can map the filesystem for on-disk persistence of your changes.</li>
+            </ol>
+
+            <h3>Demo</h3>
+          </section>
+
+          <section id="hot-swap-node-webstorm">
+            <h2>Hot swapping Node</h2>
+            <h3>using WebStorm</h3>
+
+            <ol>
+              <li>Open your project’s directory in WebStorm</li>
+              <li>Open Preferences, go to <em>Build, Execution, Deployment > Debugger > Live Edit</em></li>
+              <li>Enable <em>Auto in (ms)</em>, leave it to 300 or set it (no lower than, say, 100)</li>
+              <li>Create a launch configuration for your main file</li>
+              <li>Launch the configuration <strong>in Debug mode</strong></li>
+              <li>Change your file as you see fit: it’s hot-swapped!</li>
+            </ol>
+
+            <p><strong>Major caveat:</strong> currently breaks on hard file save 🤔</p>
+
+            <br>
+            <h3>Demo</h3>
+          </section>
+
+          <section id="hot-swap-client">
+            <h2>Hot swapping on the client side</h2>
+
+            <p>Code that runs in a browser</p>
+            <p>There are a variety of tools we can use, not all of which handle JS well</p>
+          </section>
+
+          <section id="hot-swap-client-devtools">
+            <h2>Hot swapping on the client side</h2>
+            <h3>Using DevTools</h3>
+
+            <p>CSS / Images: all browsers let us play</p>
+            <p>JS: because v8 only so far, only Chrome·ium / Electron (not Safari, Firefox, Edge)</p>
+            <p><strong>Workspaces</strong> let us persist, again.</p>
+
+            <br>
+
+            <h3>Demo</h3>
+          </section>
+
+          <section id="live-reload">
+            <h2>What about LiveReload?</h2>
+
+            <p>Oh, friend.</p>
+            <p>LiveReload is <strong>ancient</strong></p>
+            <p>It requires a dedicated server</p>
+            <p>It has very different models depending on OS</p>
+            <p>It <strong>doesn’t hot-swap anyway</strong></p>
+          </section>
+
+          <section id="browsersync">
+            <h2>What about BrowserSync?</h2>
+
+            <p>It’s <strong><a href="https://browsersync.io/">pretty cool</a></strong></p>
+            <p>Its core goal <strong>is not hot reloading</strong></p>
+            <p>It <strong>doesn’t hot-swap anyway</strong></p>
+            <br>
+            <p>Still, it’s a neat tool.  You could blend it in your dev infra to do its thing:<br/>sync user interaction across browsers.</p>
+          </section>
+
+          <section id="fb-flo">
+            <h2>What about fb-flo?</h2>
+
+            <p>Whoa, you’ve <a href="">been around the block</a>, haven’t you? 😎</p>
+
+            <p>fb-flo is a small Chrome ext + server, that can easily be embedded in your builder if you want to, that was the first option we had for hot-swapping JS code that had to go through build steps.  It also let us edit our files outside of DevTools, restoring Editor Freedom™.</p>
+
+            <p>I <a href="https://www.youtube.com/watch?v=2Dl9ES6IC3c">demonstrated it 3+ years ago</a>, and it was cool.</p>
+
+            <p>However, these days, Chrome DevTools filesystem mapping will detect build-result changes and hot-swap the results automatically, so <strong>we don’t need it anymore</strong>.  It’s not maintained anyway.</p>
+          </section>
+        </section>
+
+        <section>
+          <section id="hmr">
+            <h1>HMR</h1>
+            <h3>Hot Module Reloading</h3>
+          </section>
+
+          <section id="hmr-is-reloading">
+            <h2>The usual deal</h2>
+
+            <p>HMR is what most people refer to as hot-reloading these days.</p>
+            <p class="fragment" data-fragment-index="1"><strong>This basically means Webpack</strong>*</p>
+            <p class="fragment" data-fragment-index="2">Other tools either rely on Webpack’s HMR runtime for this (Grunt, Gulp)<br/>or have a kludgy implementation (Browserify)**.</p>
+            <p class="fragment">Relies on a client/server system, hence not bound to any editor.</p>
+            <p class="fragment"><strong>Per-module</strong>, hence super fine-grained.</p>
+
+            <footer>
+              <span class="fragment" data-fragment-index="1">* All demos that follow use Webpack 4</span><br/>
+              <span class="fragment" data-fragment-index="2">** browserify-hmr only supports a single bundle, making it quite irrelevant, and is unmaintained.</span>
+            </footer>
+          </section>
+
+          <section id="hmr-basic-demo">
+            <h2>A basic HMR demo</h2>
+
+            <!-- Basic demos (how it's opt-in, and the dispose callback) -->
+            <p>Serve with either <strong>webpack-dev-server</strong> in <strong>hot mode</strong>,<br/>or a custom server that embeds <code>webpack-dev-middleware</code> and <code>webpack-hot-middleware</code>.</p>
+
+            <div class="fragment">
+              <p>Detect on the client side and enable:</p>
+
+              <pre><code class="language-js" data-trim data-path="[master] hmr-basic/src/index.js" data-keep-tags="u">
+if (module<u>.hot</u>) {
+  module<u>.hot.accept()</u> // This is called a “self accept”
+}
+              </code></pre>
+            </div>
+
+            <div class="fragment">
+              <p>Keep an eye on the console for WDS/HMR notices.</p>
+
+              <br>
+              <h3>Demo</h3>
+              <br>
+            </div>
+
+            <p class="fragment">A word about the parts of the dependency graph being hot-reloaded…</p>
+
+            <p class="fragment">
+              Explore HMR in Webpack docs:
+              <a href="https://webpack.js.org/concepts/hot-module-replacement/">concept</a>,
+              <a href="https://webpack.js.org/guides/hot-module-replacement/">guide</a>,
+              <a href="https://webpack.js.org/api/hot-module-replacement/">API</a>.
+            </p>
+          </section>
+
+          <section id="hmr-client-state">
+            <h2>What about client state then?</h2>
+
+            <p>HMR re-runs your modules, so… what’s with client-local state?</p>
+
+            <div class="fragment">
+              <p>Like, in-memory state from active instances?</p>
+              <p>(React/Vue/Angular/etc. components, etc.)</p>
+            </div>
+
+            <div class="fragment">
+              <p>Well, by default, <strong>this would be scratched</strong>.  Also, lifecycle mayhem may ensue.</p>
+              <p>So you would need <strong>a framework-specific layer on top</strong>.</p>
+              <p>Luckily, some such layers exist!</p>
+            </div>
+          </section>
+
+          <section id="hmr-rhl3">
+            <h2>HMR with React</h2>
+            <h3>using React Hot Loader 3…</h3>
+
+            <p>Earliest popular option was react-hmre. Had a number of shortcomings though, so the community quickly moved to Dan Abramov’s <a href="https://github.com/gaearon/react-hot-loader#readme">React Hot Loader</a>.  Most of today’s usage settled on v3, which was a bit involved:</p>
+
+            <div class="two-columns">
+              <div>
+                <pre class="fragment"><code class="language-json" data-trim data-path="1: Babel config (e.g. .babelrc)" data-keep-tags="u">
+"plugins": ["react-hot-loader/babel"]
+                </code></pre>
+
+                <pre class="fragment"><code class="language-js" data-trim data-path="2: Webpack entry config (webpack.config.js)" data-keep-tags="u">
+entry: {
+  main: [
+    'react-hot-loader/patch',
+    // …
+  ]
+}
+                </code></pre>
+              </div>
+              <div>
+                <pre class="fragment"><code class="language-js" data-trim data-path="3: wrapped rendering (e.g. index.js)" data-keep-tags="u">
+import { AppContainer } from 'react-hot-loader'
+
+function renderApp(Component) {
+  ReactDOM.render(
+    &lt;AppContainer>&lt;Component/>&lt;/AppContainer>,
+    document.getElementById('root')
+  )
+}
+
+renderApp()
+if (module.hot) {
+  module.hot.accept('./App', () => {
+    renderApp(require('./App').default)
+  })
+}
+                </code></pre>
+              </div>
+            </div>
+          </section>
+
+          <section id="hmr-rhl4">
+            <h2>HMR with React</h2>
+            <h3>…using React Hot Loader 4 (RHL4)</h3>
+
+            <p><strong>Much simpler</strong> for 99% use cases (advanced API remains accessible):</p>
+
+            <pre class="fragment"><code class="language-json" data-trim data-path="1: Babel config (e.g. .babelrc)" data-keep-tags="u">
+"plugins": ["react-hot-loader/babel"]
+            </code></pre>
+
+            <pre class="fragment"><code class="language-js" data-trim data-path="2: wrapped export (e.g. App.js)" data-keep-tags="u">
+import { hot } from 'react-hot-loader'
+
+// (App component here, be it SFC or class-based)
+
+export default <u>hot(module)(App)</u>
+            </code></pre>
+
+            <div class="fragment">
+              <br>
+              <h3>Demo</h3>
+              <br>
+            </div>
+
+            <p class="fragment">(Not baked in Create React App, but you can easily <a href="https://github.com/cdharris/react-app-rewire-hot-loader">rewire</a> without ejecting.)</p>
+          </section>
+
+          <section id="hmr-vue">
+            <h2>HMR with Vue</h2>
+            <h3>built in vue-loader</h3>
+
+            <p>Anything based on <a href="https://vue-loader.vuejs.org/en/">vue-loader</a> has Vue-specific HMR built in 🎉</p>
+
+            <p>However, due to Vue’s current handling of <code>&lt;script></code> tags and component lifecycle hooks, this <strong><a href="https://vue-loader.vuejs.org/en/features/hot-reload.html">still loses state on script change</a></strong> (template / style changes are fine).</p>
+
+            <p>This seems like something that could be improved with good heuristics.  Not slated yet though.</p>
+
+            <br>
+            <h3>Demo</h3>
+          </section>
+
+          <section id="hmr-angular">
+            <h2>HMR with Angular?</h2>
+            <h3>I wish.</h3>
+
+            <p>Angular <em>(and yes, we mean latest Angular, not ol’1.x)</em> doesn’t lend itself well to per-module HMR.</p>
+            <p>Everybody either doesn’t do HMR or respawns the entire app tree in the page, which seems only marginally better than full-page reload IMHO.</p>
+            <p><a href="https://medium.com/@kubal5003/angular-4-hot-module-reload-explained-e832ea616304">See this article</a>. It’s the most-readable version of this dominant solution that I could find.</p>
+
+            <br>
+            <p>If someone has a kick-ass solution available, <strong>come talk to me later!</strong> 🙏🏻</p>
+          </section>
+
+          <section id="hmr-ember">
+            <h2>HMR with Ember?</h2>
+            <h3>Nowhere to be found 😢</h3>
+
+            <p>I looked really hard. I asked the team. No dice.</p>
+            <div class="fragment">
+              <p>Here’s a Canadian (Vancouver) Tomster as a consolation prize:</p>
+              <img src="images/vancouver-tomster.png" alt="The Vancouver Tomster"/>
+            </div>
+          </section>
+        </section>
+
+        <section id="tldr">
+          <h2>TL;DR</h2>
+
+          <ol>
+            <li>Use <strong>Chrome’s Node-specific DevTools</strong> to hot-swap in Node</li>
+            <li>Use <strong>Chrome’s DevTools</strong> to hot-swap in the client, <em>if you do need hot-swap</em></li>
+            <li>Use <strong>Webpack and its HMR feature</strong> to:
+              <ul>
+                <li>hot-reload your vanilla modules with full control</li>
+                <li>hot-reload whilst preserving client state (through React Hot Loader or Vue Loader), when available</li>
+              </ul>
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <h1>Thank you!</h1>
+          <br>
+          <p>Christophe Porteneuve</p>
+          <p><a href="https://twitter.com/porteneuve">@porteneuve</a></p>
+
+          <p class="breathing">
+            Slides are up at <a href="http://bit.ly/confoo-hotreload">bit.ly/confoo-hotreload</a><br/>
+          </p>
+        </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+    <script src="plugin/highlight/prism.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+      // Full list of configuration options available here: // https://github.com/hakimel/reveal.js#configuration
+      /* global Reveal */
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        width: '95%',
+        height: '90%',
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Parallax scrolling
+        // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+        // parallaxBackgroundSize: '2100px 900px',
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function () { return !document.body.classList } },
+          { src: 'plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]') } },
+          { src: 'plugin/markdown/markdown.js', condition: function () { return !!document.querySelector('[data-markdown]') } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () { return !!document.body.classList } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function () { return !!document.body.classList } }
+        ]
+      })
+		</script>
+
+	</body>
+</html>
