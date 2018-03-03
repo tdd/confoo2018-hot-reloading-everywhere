@@ -1,0 +1,19 @@
+{
+  "name": "hmr-basic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A basic HMR Demo for a Confoo Montréal 2018 presentation",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode=development"
+  },
+  "keywords": [],
+  "author":
+    "Christophe Porteneuve <christophe@delicious-insights.com> (https://delicious-insights.com/)",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^4.0.1",
+    "webpack-cli": "^2.0.10",
+    "webpack-dev-server": "^3.1.0"
+  }
+}
