@@ -4,8 +4,8 @@
 
 This repo has two unrelated branches:
 
-* [`gh-pages`](/tdd/confoo2018-hot-reloading-everywhere/tree/gh-pages) contains the slides. It’s browsable at https://tdd.github.io/confoo2018-hot-reloading-everywhere
-* [`master`](/tdd/confoo2018-hot-reloading-everywhere/tree/master) contains the codebases for all the live demos
+* [`gh-pages`](https://github.com/tdd/confoo2018-hot-reloading-everywhere/tree/gh-pages) contains the slides. It’s browsable at https://tdd.github.io/confoo2018-hot-reloading-everywhere
+* [`master`](https://github.com/tdd/confoo2018-hot-reloading-everywhere/tree/master) contains the codebases for all the live demos
 
 ---
 
