@@ -72,10 +72,11 @@
 
 					<pre><code data-trim class="language-js">
 const christophe = {
-  family: { wife: 'Élodie', son: 'Maxence', [Symbol.unknown]: '*Secret*' },
+  family: { wife: 'Élodie', son: 'Maxence', [Symbol.guess]: '*Shh*' },
   city: 'Paris, FR',
   company: 'Delicious Insights',
-  trainings: ['Web Apps Modernes', 'Node.js', 'Git Total', 'ES Total', 'Webpack'],
+  trainings: ['Web Apps Modernes', 'Node.js', 'Git Total',
+    'ES Total', 'Webpack'],
   firstTimeInMontreal: true,
   lastTimeInMontreal: Symbol.noWay,
   webSince: 1995,
@@ -109,7 +110,7 @@ const christophe = {
             <h2>Hot Swapping</h2>
 
             <p>A well-known dev principle that means you can hot-replace running code in a runtime.</p>
-            <p>Possible in <a href="https://en.wikipedia.org/wiki/Hot_swapping#Software">a number of runtimes</a> over the years, sometimes inherent to a language<br/>
+            <p>Possible in <a href="https://en.wikipedia.org/wiki/Hot_swapping#Software">a number of runtimes</a>, sometimes inherent to a language
               (Lisp, Erlang, Smalltalk, Elm, Elixir… VB6 *cough*).
             </p>
             <p>VS has <em>Edit and Continue</em> for C# and VB.NET, too.</p>
@@ -123,7 +124,7 @@ const christophe = {
 
             <p>For CSS and images, same thing as hot swapping.</p>
 
-            <p>For JS, entirely different: we <strong>re-run the script</strong> in the current host context<br/>(running web page, Electron host…).  Not very useful in Node.</p>
+            <p>For JS, entirely different: we <strong>re-run the script</strong> in the current host context (running web page, Electron host…).  Not very useful in Node.</p>
 
             <p>This comes with a number of gotchas we’ll highlight later.</p>
           </section>
@@ -153,10 +154,10 @@ const christophe = {
               <li>Open Chrome and open its Dev Tools (<kbd>F12</kbd> / <kbd>Cmd+Alt+J</kbd>)</li>
               <li>Start your Node using <code>--inspect</code> (or <code>kill -USR1</code> its process).</li>
               <li>
-                You should see a Node icon pop up next to the Select / Device top-left icons: click it<br/>
+                You should see a Node icon pop up next to the Select / Device top-left icons: click it
                 (not seeing it? this is a temporary bug: browse <code>chrome://inspect</code> instead)
               </li>
-              <li>Go to the Sources tab, edit any file, “save” it: it’s hot-swapped 🎉</li>
+              <li>Go to the Sources tab, edit a file, “save” it: hot-swapped 🎉</li>
               <li>(optional) You can map the filesystem for on-disk persistence of your changes.</li>
             </ol>
 
@@ -219,7 +220,7 @@ const christophe = {
             <p>Its core goal <strong>is not hot reloading</strong></p>
             <p>It <strong>doesn’t hot-swap anyway</strong></p>
             <br>
-            <p>Still, it’s a neat tool.  You could blend it in your dev infra to do its thing:<br/>sync user interaction across browsers.</p>
+            <p>Still, it’s a neat tool.  You could blend it in your dev infra to do its thing: sync user interaction across browsers.</p>
           </section>
 
           <section id="fb-flo">
@@ -227,11 +228,11 @@ const christophe = {
 
             <p>Whoa, you’ve <a href="">been around the block</a>, haven’t you? 😎</p>
 
-            <p>fb-flo is a small Chrome ext + server, that can easily be embedded in your builder if you want to, that was the first option we had for hot-swapping JS code that had to go through build steps.  It also let us edit our files outside of DevTools, restoring Editor Freedom™.</p>
+            <p>Small Chrome ext + (embeddable) server. Was the first option for hot-swapping build-step JS code.  We could edit our files anywhere, restoring Editor Freedom™.</p>
 
             <p>I <a href="https://www.youtube.com/watch?v=2Dl9ES6IC3c">demonstrated it 3+ years ago</a>, and it was cool.</p>
 
-            <p>However, these days, Chrome DevTools filesystem mapping will detect build-result changes and hot-swap the results automatically, so <strong>we don’t need it anymore</strong>.  It’s not maintained anyway.</p>
+            <p>DevTools filesystem mapping now detects file changes, hot-swaps automatically: <strong>we don’t need fb-flo anymore</strong>.  Not maintained anyway.</p>
           </section>
         </section>
 
@@ -244,10 +245,10 @@ const christophe = {
           <section id="hmr-is-reloading">
             <h2>The usual deal</h2>
 
-            <p>HMR is what most people refer to as hot-reloading these days.</p>
+            <p>What most people refer to as hot-reloading these days.</p>
             <p class="fragment" data-fragment-index="1"><strong>This basically means Webpack</strong>*</p>
-            <p class="fragment" data-fragment-index="2">Other tools either rely on Webpack’s HMR runtime for this (Grunt, Gulp)<br/>or have a kludgy implementation (Browserify)**.</p>
-            <p class="fragment">Relies on a client/server system, hence not bound to any editor.</p>
+            <p class="fragment" data-fragment-index="2">Other tools either rely on Webpack for this (Grunt, Gulp)<br/>or have a kludgy implementation (Browserify)**.</p>
+            <p class="fragment">Relies on a client/server system: not bound to any editor.</p>
             <p class="fragment"><strong>Per-module</strong>, hence super fine-grained.</p>
 
             <footer>
@@ -293,11 +294,11 @@ if (module<u>.hot</u>) {
           <section id="hmr-client-state">
             <h2>What about client state then?</h2>
 
-            <p>HMR re-runs your modules, so… what’s with client-local state?</p>
+            <p>HMR re-runs your modules, so… we lose it?</p>
 
             <div class="fragment">
-              <p>Like, in-memory state from active instances?</p>
-              <p>(React/Vue/Angular/etc. components, etc.)</p>
+              <p>Like, in-memory state from active instances?
+              (React/Vue/Angular/etc. components, etc.)</p>
             </div>
 
             <div class="fragment">
@@ -309,11 +310,11 @@ if (module<u>.hot</u>) {
 
           <section id="hmr-rhl3">
             <h2>HMR with React</h2>
-            <h3>using React Hot Loader 3…</h3>
+            <h4>using React Hot Loader 3…</h4>
 
-            <p>Earliest popular option was react-hmre. Had a number of shortcomings though, so the community quickly moved to Dan Abramov’s <a href="https://github.com/gaearon/react-hot-loader#readme">React Hot Loader</a>.  Most of today’s usage settled on v3, which was a bit involved:</p>
+            <p>It was a bit involved:</p>
 
-            <div class="two-columns">
+            <div class="two-columns with-code">
               <div>
                 <pre class="fragment"><code class="language-json" data-trim data-path="1: Babel config (e.g. .babelrc)" data-keep-tags="u">
 "plugins": ["react-hot-loader/babel"]
@@ -352,9 +353,9 @@ if (module.hot) {
 
           <section id="hmr-rhl4">
             <h2>HMR with React</h2>
-            <h3>…using React Hot Loader 4 (RHL4)</h3>
+            <h4>…using <a href="https://github.com/gaearon/react-hot-loader#readme">React Hot Loader</a> 4 (RHL4)</h4>
 
-            <p><strong>Much simpler</strong> for 99% use cases (advanced API remains accessible):</p>
+            <p><strong>Much simpler</strong> for 99% use cases:</p>
 
             <pre class="fragment"><code class="language-json" data-trim data-path="1: Babel config (e.g. .babelrc)" data-keep-tags="u">
 "plugins": ["react-hot-loader/babel"]
@@ -368,20 +369,16 @@ import { hot } from 'react-hot-loader'
 export default <u>hot(module)(App)</u>
             </code></pre>
 
-            <div class="fragment">
-              <br>
-              <h3>Demo</h3>
-              <br>
-            </div>
+            <h3 class="fragment">Demo</h3>
 
-            <p class="fragment">(Not baked in Create React App, but you can easily <a href="https://github.com/cdharris/react-app-rewire-hot-loader">rewire</a> without ejecting.)</p>
+            <footer class="fragment">(Not baked in Create React App, but you can easily <a href="https://github.com/cdharris/react-app-rewire-hot-loader">rewire</a> without ejecting.)</footer>
           </section>
 
           <section id="hmr-vue">
             <h2>HMR with Vue</h2>
             <h3>built in vue-loader</h3>
 
-            <p>Anything based on <a href="https://vue-loader.vuejs.org/en/">vue-loader</a> has Vue-specific HMR built in 🎉</p>
+            <p>Anything based on <a href="https://vue-loader.vuejs.org/en/">vue-loader</a> has auto Vue-specific HMR 🎉</p>
 
             <p>However, due to Vue’s current handling of <code>&lt;script></code> tags and component lifecycle hooks, this <strong><a href="https://vue-loader.vuejs.org/en/features/hot-reload.html">still loses state on script change</a></strong> (template / style changes are fine).</p>
 
@@ -393,24 +390,23 @@ export default <u>hot(module)(App)</u>
 
           <section id="hmr-angular">
             <h2>HMR with Angular?</h2>
-            <h3>I wish.</h3>
+            <h4>I wish.</h4>
 
             <p>Angular <em>(and yes, we mean latest Angular, not ol’1.x)</em> doesn’t lend itself well to per-module HMR.</p>
             <p>Everybody either doesn’t do HMR or respawns the entire app tree in the page, which seems only marginally better than full-page reload IMHO.</p>
             <p><a href="https://medium.com/@kubal5003/angular-4-hot-module-reload-explained-e832ea616304">See this article</a>. It’s the most-readable version of this dominant solution that I could find.</p>
 
-            <br>
             <p>If someone has a kick-ass solution available, <strong>come talk to me later!</strong> 🙏🏻</p>
           </section>
 
           <section id="hmr-ember">
             <h2>HMR with Ember?</h2>
-            <h3>Nowhere to be found 😢</h3>
+            <h4>Nowhere to be found 😢</h4>
 
             <p>I looked really hard. I asked the team. No dice.</p>
             <div class="fragment">
-              <p>Here’s a Canadian (Vancouver) Tomster as a consolation prize:</p>
-              <img src="images/vancouver-tomster.png" alt="The Vancouver Tomster"/>
+              <p>Here’s a Canadian (Vancouver) Tomster as consolation:</p>
+              <img src="images/vancouver-tomster.png" alt="The Vancouver Tomster" style="height: 10em" />
             </div>
           </section>
         </section>
@@ -438,7 +434,9 @@ export default <u>hot(module)(App)</u>
 
           <p class="breathing">
             Slides are up at <a href="http://bit.ly/confoo-hotreload">bit.ly/confoo-hotreload</a><br/>
+            Code samples are on the <a href="https://github.com/tdd/confoo2018-hot-reloading-everywhere/tree/master#readme">GitHub repo</a>
           </p>
+          <p><small><a href="https://joind.in/talk/1cd00">https://joind.in/talk/1cd00</a></small></p>
         </section>
 			</div>
 		</div>

@@ -98,7 +98,7 @@ em strong[lang] {
 }
 
 .reveal pre code {
-  font-size: 1.2em;
+  font-size: 0.9em;
   max-height: none;
 }
 
@@ -286,6 +286,10 @@ b.hl {
 }
 .two-columns > div:not(:first-child) {
   margin-left: 0.5em;
+}
+
+.two-columns.with-code pre code {
+  font-size: 0.7em;
 }
 
 .reveal iframe[name^='tonic-embed-'] {
